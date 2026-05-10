@@ -1,0 +1,15 @@
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+env/
+build/
+dist/
+*.pyc
+*.pyo
+*.pyd
+*.log
+outputs/*.md
+outputs/*.html
+outputs/*.json
+!outputs/.gitkeep
