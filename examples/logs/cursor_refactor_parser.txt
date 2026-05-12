@@ -1,0 +1,19 @@
+Task understanding: Parser rule checks are scattered and hard to extend.
+Approach: centralize keyword rules, keep the same event_type output, then run parser tests.
+terminal: git status --short
+search: grep -R "planning" agentops_lite tests
+open file: agentops_lite/parser.py
+open file: tests/test_parser.py
+todo: replace inline if blocks with a RULES table.
+edit: update parser.py with compiled regex rules.
+run command: pytest tests/test_parser.py
+error: AttributeError cannot access confidence because the new rule tuple order is wrong.
+again: inspect the constructor and fix the tuple order.
+patch: modify parser.py rule definitions and add a confidence default.
+rerun: pytest tests/test_parser.py
+failed tests: command_run is emitted twice for pytest lines.
+retry: dedupe command line counting in metrics while keeping both semantic events.
+modify: update metrics aggregation in parser.py.
+run command: pytest tests/test_parser.py
+test result: 5 passed.
+summary: refactor completed with centralized rules and compatible parser behavior.

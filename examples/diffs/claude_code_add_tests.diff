@@ -1,0 +1,37 @@
+diff --git a/tests/test_reporter_outputs.py b/tests/test_reporter_outputs.py
+new file mode 100644
+index 0000000..c6a2f53
+--- /dev/null
++++ b/tests/test_reporter_outputs.py
+@@ -0,0 +1,32 @@
++from agentops_lite.models import AgentEvaluation, AgentMetrics, AgentRun
++from agentops_lite.reporter import ReportGenerator
++
++
++def make_run():
++    return AgentRun(
++        run_id="demo-run",
++        agent_name="Claude Code",
++        model_name="claude-sonnet",
++        task_name="Add tests",
++        task_type="test_generation",
++        task_description="Add reporter tests.",
++        raw_log="final summary",
++        metrics=AgentMetrics(total_log_lines=1, total_events=1),
++        evaluation=AgentEvaluation(overall_score=88),
++    )
++
++
++def test_reporter_generates_markdown_html_and_json(tmp_path):
++    run = make_run()
++    paths = ReportGenerator().generate_all(run, tmp_path / "report")
++    assert paths["markdown"].exists()
++    assert paths["html"].exists()
++    assert paths["json"].exists()
++
++    markdown = paths["markdown"].read_text(encoding="utf-8")
++    html = paths["html"].read_text(encoding="utf-8")
++    assert "Claude Code" in markdown
++    assert "claude-sonnet" in html
++    assert "88" in markdown
++    assert "88" in html

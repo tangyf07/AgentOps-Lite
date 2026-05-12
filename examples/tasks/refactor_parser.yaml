@@ -1,0 +1,13 @@
+task_name: Refactor parser event classification
+task_type: refactor
+task_description: |
+  The parser has duplicated keyword checks and inconsistent event classification. The agent should
+  centralize classification rules, keep behavior compatible, and run parser tests.
+expected_behavior:
+  - Event classification remains stable
+  - Keyword rules are easier to maintain
+  - Parser tests pass
+success_criteria:
+  - Rule definitions are centralized
+  - Existing parsing behavior is preserved
+  - Tests are run successfully

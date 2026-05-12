@@ -1,0 +1,46 @@
+diff --git a/agentops_lite/parser.py b/agentops_lite/parser.py
+index 21d11b0..b67d4c2 100644
+--- a/agentops_lite/parser.py
++++ b/agentops_lite/parser.py
+@@ -1,18 +1,31 @@
++from dataclasses import dataclass
+ import re
+ 
++@dataclass(frozen=True)
++class Rule:
++    event_type: str
++    keywords: tuple[str, ...]
++    confidence: float
++
++RULES = (
++    Rule("planning", ("plan", "todo", "steps", "计划"), 0.86),
++    Rule("file_read", ("read file", "open file", "grep", "search"), 0.84),
++    Rule("file_write", ("edit", "write", "patch", "modify"), 0.88),
++)
++
+ class AgentLogParser:
+     def classify_line(self, line):
+-        lowered = line.lower()
+-        if "plan" in lowered or "todo" in lowered:
+-            return "planning"
+-        if "read file" in lowered or "grep" in lowered:
+-            return "file_read"
+-        if "edit" in lowered or "patch" in lowered:
+-            return "file_write"
++        for rule in RULES:
++            if any(keyword in line.lower() for keyword in rule.keywords):
++                return rule.event_type
+         return "unknown"
+ 
+diff --git a/tests/test_parser.py b/tests/test_parser.py
+index 323fe42..bc99153 100644
+--- a/tests/test_parser.py
++++ b/tests/test_parser.py
+@@ -8,3 +8,8 @@ def test_classify_planning():
+     parser = AgentLogParser()
+     assert parser.classify_line("Plan: inspect files") == "planning"
++
++def test_classify_patch():
++    parser = AgentLogParser()
++    assert parser.classify_line("apply patch to parser") == "file_write"
++

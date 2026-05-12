@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentOps Lite Comparison</title>
+  <style>
+    :root { --bg:#f7f8fb; --ink:#1f2328; --muted:#687076; --line:#d9e1ec; --card:#fff; --accent:#2c5f9e; --good:#237a4b; --warn:#99670f; --bad:#b73a3a; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,Segoe UI,Arial,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+    .wrap { max-width:1320px; margin:0 auto; padding:32px 24px 56px; }
+    .hero { display:grid; grid-template-columns:1fr auto; gap:24px; align-items:end; padding-bottom:20px; border-bottom:1px solid var(--line); }
+    h1 { margin:0; font-size:34px; letter-spacing:0; }
+    .sub { color:var(--muted); margin-top:8px; }
+    .summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .mini-card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+    .mini-card span { display:block; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .mini-card strong { display:block; margin-top:6px; font-size:28px; }
+    .score-pill { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#111; color:#fff; font-weight:700; }
+    .score-pill .tag { margin:0; }
+    table { width:100%; border-collapse:collapse; background:var(--card); box-shadow:0 8px 28px rgba(0,0,0,.06); border-radius:8px; overflow:hidden; }
+    th, td { text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); vertical-align:middle; }
+    th { background:#eef2f7; color:#454545; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    tr.best { background:#edf7ec; font-weight:700; }
+    .tag { display:inline-flex; align-items:center; justify-content:center; border-radius:999px; padding:2px 8px; font-size:12px; font-weight:700; color:#fff; background:#687076; white-space:nowrap; }
+    .grade-a { background:var(--good); }
+    .grade-b { background:#3d7f5e; }
+    .grade-c { background:var(--accent); }
+    .grade-d { background:var(--warn); }
+    .grade-e { background:var(--bad); }
+    .delta { display:inline-flex; min-width:34px; justify-content:center; padding:2px 8px; border-radius:999px; background:#eef3f8; color:#344054; font-weight:700; }
+    .bar { width:100%; height:8px; background:#e7edf5; border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:linear-gradient(90deg,#2c5f9e,#4f8dd8); border-radius:inherit; }
+    .note { margin-top:14px; color:var(--muted); }
+    .table-wrap { margin-top:18px; overflow:auto; border-radius:8px; }
+    @media (max-width: 980px) { .hero, .summary { grid-template-columns:1fr 1fr; } }
+    @media (max-width: 640px) { .hero, .summary { grid-template-columns:1fr; } h1 { font-size:28px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <h1>AgentOps Lite Comparison</h1>
+        <div class="sub">Sorted by overall score, with the strongest run highlighted at the top.</div>
+      </div>
+      <div class="score-pill"><span class="tag grade-a">Best</span> 97</div>
+    </section>
+    <section class="summary"><div class='mini-card'><span>Runs</span><strong>2</strong></div><div class='mini-card'><span>Average overall</span><strong>97</strong></div><div class='mini-card'><span>Average reliability</span><strong>87</strong></div><div class='mini-card'><span>Best run</span><strong>Codex</strong></div></section>
+    <section class="summary">
+      <div class="mini-card"><span>Best completion</span><strong>100</strong><small>Codex / gpt-5-codex</small></div>
+      <div class="mini-card"><span>Best reliability</span><strong>87</strong><small>Codex / gpt-5-codex</small></div>
+      <div class="mini-card"><span>Best efficiency</span><strong>100</strong><small>Codex / gpt-5-codex</small></div>
+      <div class="mini-card"><span>Average completion</span><strong>100</strong><small>Across all compared runs</small></div>
+    </section>
+    <section class="summary">
+      <div class="mini-card"><span>Average quality</span><strong>100</strong><small>Code quality signal across runs</small></div>
+      <div class="mini-card"><span>Average overall</span><strong>97</strong><small>Overall score average</small></div>
+      <div class="mini-card"><span>Average reliability</span><strong>87</strong><small>Reliability signal average</small></div>
+      <div class="mini-card"><span>Winner</span><strong>Codex</strong><small>gpt-5-codex</small></div>
+    </section>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Agent</th>
+            <th>Model</th>
+            <th>Task</th>
+            <th>Band</th>
+            <th>Overall</th>
+            <th>Completion</th>
+            <th>Reliability</th>
+            <th>Cost Efficiency</th>
+            <th>Delta</th>
+            <th>Trend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class='best'><td>1</td><td>Codex</td><td>gpt-5-codex</td><td>Fix login validation bug</td><td><span class='tag grade-a'>Grade A</span> Excellent</td><td>97</td><td>100</td><td>87</td><td>100</td><td><span class='delta'>0</span></td><td><div class='bar'><span style='width:97%'></span></div></td></tr><tr class=''><td>2</td><td>Codex</td><td>gpt-5-codex</td><td>Fix login validation bug</td><td><span class='tag grade-a'>Grade A</span> Excellent</td><td>97</td><td>100</td><td>87</td><td>100</td><td><span class='delta'>0</span></td><td><div class='bar'><span style='width:97%'></span></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">Best run: codex-fix-login-validation-bug-20260510-170100 | Lowest run: codex-fix-login-validation-bug-20260510-170442 | Generated at 2026-05-10T17:04:54.334419+00:00</div>
+  </div>
+</body>
+</html>

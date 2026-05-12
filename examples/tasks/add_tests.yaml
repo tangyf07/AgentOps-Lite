@@ -1,0 +1,13 @@
+task_name: Add tests for report generation
+task_type: test_generation
+task_description: |
+  Report generation currently has weak coverage. The agent should add tests that verify Markdown,
+  HTML, and JSON outputs include key run metadata and scores.
+expected_behavior:
+  - Report files are generated
+  - Agent and model metadata appears in reports
+  - Overall score appears in reports
+success_criteria:
+  - New reporter tests are added
+  - Test command is run
+  - Existing tests still pass

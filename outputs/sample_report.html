@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentOps Lite Report - Codex</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --ink: #1d2430;
+      --muted: #667085;
+      --line: #d8e0ea;
+      --card: #ffffff;
+      --soft: #eef3f8;
+      --green: #1f7a4d;
+      --red: #bf3b3b;
+      --blue: #235fa4;
+      --amber: #a46b13;
+      --violet: #6953a8;
+      --shadow: 0 12px 30px rgba(25, 35, 50, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(180deg, #f7f9fc 0%, var(--bg) 100%);
+      color: var(--ink);
+      line-height: 1.56;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1220px; margin: 0 auto; padding: 32px 24px 56px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) auto;
+      gap: 24px;
+      align-items: end;
+      padding: 24px;
+      background: rgba(255,255,255,.8);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+    h1 { margin: 0; font-size: 36px; letter-spacing: 0; }
+    h2 { margin: 0 0 14px; font-size: 21px; letter-spacing: 0; }
+    h3 { margin: 0 0 10px; font-size: 16px; }
+    .sub {
+      margin-top: 10px;
+      color: var(--muted);
+      max-width: 70ch;
+    }
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .badge,
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .tag { color: #fff; background: var(--muted); }
+    .grade-a { background: var(--green); }
+    .grade-b { background: #3d7f5e; }
+    .grade-c { background: var(--blue); }
+    .grade-d { background: var(--amber); }
+    .grade-e { background: var(--red); }
+    .hero-score {
+      min-width: 160px;
+      padding: 18px 20px;
+      border-radius: 8px;
+      background: #111827;
+      color: #fff;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .hero-score strong { display: block; font-size: 48px; line-height: 1; }
+    .hero-score span { display: block; color: #c7d0db; margin-top: 6px; font-size: 13px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .card,
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .card .label,
+    .metric-card .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .card .value,
+    .metric-card .value {
+      margin-top: 6px;
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .section {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+      box-shadow: var(--shadow);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .section .muted { color: var(--muted); }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .meta-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .meta-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .meta-card strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      word-break: break-word;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .table th, .table td {
+      border-bottom: 1px solid var(--line);
+      padding: 11px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .table th {
+      background: #eef3f8;
+      color: #475467;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .table td code {
+      background: #f3f5f7;
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+    .timeline td:first-child { width: 72px; color: var(--muted); }
+    .timeline td:nth-child(2) { width: 160px; }
+    .timeline tr:nth-child(even) { background: #fbfcfe; }
+    .list {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .list li { margin: 6px 0; }
+    .callout {
+      padding: 14px 16px;
+      border-radius: 8px;
+      background: #eef4fb;
+      border: 1px solid #d3e0ef;
+    }
+    .callout strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+    .callout p {
+      margin: 0;
+      color: var(--ink);
+    }
+    .artifacts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0;
+    }
+    .artifacts > div {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .artifacts dt {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .artifacts dd {
+      margin: 6px 0 0;
+      word-break: break-word;
+    }
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .subpanel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .conclusion {
+      padding: 18px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .conclusion p { margin: 0; }
+    details {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+    summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 16px;
+      font-weight: 700;
+      background: #f8fbff;
+    }
+    summary::-webkit-details-marker { display: none; }
+    details > div {
+      padding: 0 16px 16px;
+    }
+    .footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    @media (max-width: 980px) {
+      .hero, .meta-grid, .grid, .signal-grid, .artifacts, .review-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 720px) {
+      .wrap { padding: 20px 14px 40px; }
+      .hero, .meta-grid, .grid, .signal-grid, .artifacts, .review-grid { grid-template-columns: 1fr; }
+      .hero { padding: 18px; }
+      h1 { font-size: 30px; }
+      .hero-score { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="kicker">AgentOps Lite Report</div>
+        <h1>Codex / gpt-5-codex</h1>
+        <div class="sub">
+          Fix login validation bug | bug_fix<br>
+          The login form accepts empty passwords in some cases. The agent should locate the validation logic,
+fix the bug, and add or run tests.
+
+        </div>
+        <div class="summary">
+          <span class="badge">run_id: <code>codex-fix-login-validation-bug-20260510-170442</code></span>
+          <span class="badge">status: Production-ready signal</span>
+          <span class="badge">generated: 2026-05-10T17:04:42.887097+00:00</span>
+        </div>
+        <div class="summary"><span class='tag grade-a'>Score A</span><span class='tag grade-c'>Excellent</span><span class='tag grade-b'>Medium complexity</span><span class='tag grade-d'>Low cost</span></div>
+      </div>
+      <div class="hero-score">
+        <strong>97</strong>
+        <span>overall score</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class='card'><div class='label'>Overall</div><div class='value'>97</div></div><div class='card'><div class='label'>Completion</div><div class='value'>100</div></div><div class='card'><div class='label'>Code Quality</div><div class='value'>100</div></div><div class='card'><div class='label'>Reliability</div><div class='value'>87</div></div><div class='card'><div class='label'>Cost Efficiency</div><div class='value'>100</div></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Run Signals</h2>
+        <span class="muted">Compact overview of execution shape</span>
+      </div>
+      <div class="signal-grid">
+        <div class='metric-card'><div class='label'>Log lines</div><div class='value'>15</div></div><div class='metric-card'><div class='label'>Events</div><div class='value'>15</div></div><div class='metric-card'><div class='label'>Files</div><div class='value'>2</div></div><div class='metric-card'><div class='label'>Commands</div><div class='value'>3</div></div><div class='metric-card'><div class='label'>Errors</div><div class='value'>1</div></div><div class='metric-card'><div class='label'>Retries</div><div class='value'>1</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Run Metadata</h2>
+        <span class="muted">Task and artifact snapshot</span>
+      </div>
+      <div class="meta-grid">
+        <div class="meta-card"><span>Task name</span><strong>Fix login validation bug</strong></div>
+        <div class="meta-card"><span>Task type</span><strong>bug_fix</strong></div>
+        <div class="meta-card"><span>Started at</span><strong>2026-05-10T17:04:42.883513+00:00</strong></div>
+        <div class="meta-card"><span>Finished at</span><strong>2026-05-10T17:04:42.883513+00:00</strong></div>
+        <div class="meta-card"><span>Log path</span><strong>D:\AgentOps Lite\examples\logs\codex_bugfix_login.txt</strong></div>
+        <div class="meta-card"><span>Diff path</span><strong>D:\AgentOps Lite\examples\diffs\codex_bugfix_login.diff</strong></div>
+        <div class="meta-card"><span>Score band</span><strong>A / Excellent</strong></div>
+        <div class="meta-card"><span>Generated at</span><strong>2026-05-10T17:04:42.887097+00:00</strong></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Executive Summary</h2>
+        <span class="muted">A compact read on the run</span>
+      </div>
+      <div class="callout">
+        <strong>Production-ready signal</strong>
+        <p>Reproduce the first failure cleanly and fix the root cause before retrying.</p>
+      </div>
+      <details open>
+        <summary>What stands out</summary>
+        <div><p class='muted'>No obvious risk flags detected.</p></div>
+      </details>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Metrics</h2>
+        <span class="muted">Signals extracted from logs and diff</span>
+      </div>
+      <table class='table'><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td>Total log lines</td><td>15</td></tr><tr><td>Total events</td><td>15</td></tr><tr><td>Files touched</td><td>2</td></tr><tr><td>Commands run</td><td>3</td></tr><tr><td>Errors found</td><td>1</td></tr><tr><td>Retries</td><td>1</td></tr><tr><td>Tests detected</td><td>1</td></tr><tr><td>Human interventions</td><td>0</td></tr><tr><td>Diff added lines</td><td>10</td></tr><tr><td>Diff removed lines</td><td>1</td></tr><tr><td>Estimated complexity</td><td>medium</td></tr><tr><td>Estimated cost level</td><td>low</td></tr></tbody></table>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Artifacts</h2>
+        <span class="muted">Useful when you need to revisit evidence</span>
+      </div>
+      <dl class='artifacts'><div><dt>Log</dt><dd><code>D:\AgentOps Lite\examples\logs\codex_bugfix_login.txt</code></dd></div><div><dt>Diff</dt><dd><code>D:\AgentOps Lite\examples\diffs\codex_bugfix_login.diff</code></dd></div><div><dt>Started</dt><dd>2026-05-10T17:04:42.883513+00:00</dd></div><div><dt>Finished</dt><dd>2026-05-10T17:04:42.883513+00:00</dd></div></dl>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Agent Timeline</h2>
+        <span class="muted">Ordered execution trace</span>
+      </div>
+      <table class='table timeline'><thead><tr><th>Line</th><th>Event</th><th>Content</th></tr></thead><tbody><tr><td>1</td><td><span class='tag task_understanding'>task_understanding</span></td><td>[00:00] Task understanding: The login form accepts empty passwords. I need to inspect validation, patch the behavior, and run tests.</td></tr><tr><td>2</td><td><span class='tag planning'>planning</span></td><td>[00:01] Plan: 1. search login validation. 2. read file. 3. update validation. 4. run pytest.</td></tr><tr><td>3</td><td><span class='tag command_run'>command_run</span></td><td>[00:02] run command: rg &quot;password&quot; app tests</td></tr><tr><td>4</td><td><span class='tag file_read'>file_read</span></td><td>[00:03] read file: app/auth.py</td></tr><tr><td>5</td><td><span class='tag file_read'>file_read</span></td><td>[00:04] read file: tests/test_auth.py</td></tr><tr><td>6</td><td><span class='tag unknown'>unknown</span></td><td>[00:05] I found LoginValidator.validate only checks password is not None, so an empty string can pass.</td></tr><tr><td>7</td><td><span class='tag file_write'>file_write</span></td><td>[00:06] apply_patch: update app/auth.py to reject blank password values after stripping whitespace.</td></tr><tr><td>8</td><td><span class='tag file_write'>file_write</span></td><td>[00:07] apply_patch: update tests/test_auth.py with empty password and whitespace password cases.</td></tr><tr><td>9</td><td><span class='tag command_run'>command_run</span></td><td>[00:08] run command: pytest tests/test_auth.py</td></tr><tr><td>10</td><td><span class='tag error'>error</span></td><td>[00:09] failed tests: test_login_rejects_blank_password raises AssertionError because error message changed.</td></tr><tr><td>11</td><td><span class='tag retry'>retry</span></td><td>[00:10] retry: adjust test to assert error code instead of exact message.</td></tr><tr><td>12</td><td><span class='tag file_write'>file_write</span></td><td>[00:11] apply_patch: modify tests/test_auth.py to assert INVALID_PASSWORD.</td></tr><tr><td>13</td><td><span class='tag command_run'>command_run</span></td><td>[00:12] run command: pytest tests/test_auth.py</td></tr><tr><td>14</td><td><span class='tag test_run'>test_run</span></td><td>[00:13] test passed: 8 passed in 0.42s</td></tr><tr><td>15</td><td><span class='tag final_answer'>final_answer</span></td><td>[00:14] final summary: completed validation fix, added regression tests, and verified auth tests pass.</td></tr></tbody></table>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Errors, Retries, and Test Signals</h2>
+        <span class="muted">The part that usually matters most</span>
+      </div>
+      <ul class='list'><li><span class='tag error'>error</span> L10: [00:09] failed tests: test_login_rejects_blank_password raises AssertionError because error message changed.</li><li><span class='tag retry'>retry</span> L11: [00:10] retry: adjust test to assert error code instead of exact message.</li><li><span class='tag test_run'>test_run</span> L14: [00:13] test passed: 8 passed in 0.42s</li></ul>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Review</h2>
+        <span class="muted">What worked and what needs attention</span>
+      </div>
+      <div class="review-grid">
+        <div class="subpanel"><h3>Strengths</h3><ul class='list'><li>Clear completion signals were detected</li><li>The workflow includes a test or verification step</li><li>The run produced concrete, traceable code changes</li><li>The execution path is relatively stable</li><li>The run stayed within a reasonable cost footprint</li></ul></div>
+        <div class="subpanel"><h3>Weaknesses</h3><ul class='list'><li>1 error signal(s) were detected</li><li>1 retry step(s) suggest rework during execution</li></ul></div>
+        <div class="subpanel"><h3>Failure Reasons</h3><ul class='list'><li>Errors or failed tests appeared during execution</li></ul></div>
+        <div class="subpanel"><h3>Improvement Suggestions</h3><ul class='list'><li>Record the error cause, fix action, and verification result more explicitly</li><li>Capture the failure reason before retrying</li></ul></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Conclusion</h2>
+        <span class="muted">Final readout</span>
+      </div>
+      <div class="conclusion"><p>This run shows strong execution quality and a clear finish.</p></div>
+    </section>
+
+    <div class="footer">
+      Generated by AgentOps Lite | local-first AI coding agent workflow analysis
+    </div>
+  </main>
+</body>
+</html>
