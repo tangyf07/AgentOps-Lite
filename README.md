@@ -1,58 +1,56 @@
 # AgentOps Lite
 
-AgentOps Lite is a lightweight local CLI for evaluating AI coding agent workflows. It parses logs, terminal output, task descriptions, and code diffs from tools like Codex, Claude Code, Cursor, and OpenCode, then turns scattered execution traces into readable Markdown, HTML, and JSON reports.
+面向 AI Builder 的轻量级本地 CLI：把 Codex、Claude Code、Cursor、OpenCode 打散在任务描述、运行日志、终端输出和代码 Diff 里的执行记录，解析成事件时间线，打分，并生成 Markdown / HTML / JSON 报告。
 
-## Why This Exists
+Agent 做完活之后，证据通常散落在对话、终端、补丁和测试输出里，很难复盘失败或对比模型。AgentOps Lite 把这些痕迹收成一份可检查的本地报告。全程本地运行，可选接入 OpenAI 兼容接口做二次评审。
 
-AI Builders often finish a coding session with useful but fragmented evidence: chat history, terminal output, patches, failed tests, retries, and a final answer. AgentOps Lite makes that workflow inspectable. It helps compare agents and models across bug fixes, refactors, test generation, and other real development tasks.
+## 能做什么
 
-## Core Features
-
-- Import task YAML, agent logs, and code diffs.
-- Detect planning, file reads, file writes, commands, errors, retries, tests, human intervention, and final summaries.
-- Calculate completion, code quality, reliability, cost efficiency, and overall scores.
-- Generate Markdown, HTML, and JSON reports locally.
-- Compare multiple agent runs in a single HTML table.
-- Optionally call an OpenAI-compatible reviewer when `OPENAI_API_KEY` is available.
-
-## Workflow
+- 导入任务 YAML、Agent 日志和代码 Diff
+- 识别计划、文件读写、命令、错误、重试、测试、人工介入、最终总结等事件
+- 按完成度、代码质量、可靠性、成本效率打分
+- 生成本地 Markdown / HTML / JSON 报告
+- 把多次运行对比成一张 HTML 表
+- 设置 `OPENAI_API_KEY` 后可选用 OpenAI 兼容评审器
 
 ```mermaid
 flowchart TD
-    A[Agent logs / terminal output / code diff] --> B[Log Parser]
+    A[Agent logs / terminal / diff] --> B[Log Parser]
     B --> C[Event Timeline]
     B --> D[Metrics Extractor]
     C --> E[Rule-based Evaluator]
     D --> E
-    E --> F[Markdown Report]
-    E --> G[HTML Report]
-    E --> H[JSON Result]
+    E --> F[Markdown]
+    E --> G[HTML]
+    E --> H[JSON]
     H --> I[Multi-run Comparison]
 ```
 
-## Installation
+## 安装
 
 ```bash
+git clone https://github.com/tangyf07/AgentOps-Lite.git
+cd AgentOps-Lite
 pip install -r requirements.txt
 ```
 
-AgentOps Lite is designed to run locally. The optional LLM reviewer is skipped unless you set `OPENAI_API_KEY`.
+依赖：`pydantic` `jinja2` `rich` `pyyaml` `pytest`（见 `requirements.txt`）。
 
-## Quick Start
+## 快速开始
 
 ```bash
 python main.py sample
 ```
 
-This generates:
+会生成：
 
 - `outputs/sample_report.md`
 - `outputs/sample_report.html`
 - `outputs/sample_report.json`
 
-Open `outputs/sample_report.html` in a browser to view the visual report.
+用浏览器打开 HTML 即可看评分卡、指标表和时间线。
 
-## Analyze A Run
+## 分析一次运行
 
 ```bash
 python main.py analyze \
@@ -64,7 +62,7 @@ python main.py analyze \
   --out outputs/codex_bugfix_report
 ```
 
-To enable the optional reviewer:
+开启可选评审器：
 
 ```bash
 OPENAI_API_KEY=your_key python main.py analyze \
@@ -77,15 +75,13 @@ OPENAI_API_KEY=your_key python main.py analyze \
   --use-llm-reviewer
 ```
 
-## Compare Runs
+## 对比多次运行
 
 ```bash
 python main.py compare outputs/*.json --out outputs/comparison.html
 ```
 
-The comparison report highlights the run with the highest overall score.
-
-## Task YAML Format
+## 任务 YAML 示例
 
 ```yaml
 task_name: Fix login validation bug
@@ -103,55 +99,27 @@ success_criteria:
   - No obvious regression is introduced
 ```
 
-## Output Report Screenshot Placeholder
-
-After running `python main.py sample`, open `outputs/sample_report.html` and capture:
-
-- the top score card section,
-- the metrics table,
-- the agent timeline,
-- the strengths and improvement suggestions section.
-
-These sections are best for GitHub README screenshots, demo videos, and application proof.
-
-## Good Use Cases
-
-- Reviewing why an agent failed a bug fix.
-- Comparing Codex, Claude Code, Cursor, and OpenCode on the same task.
-- Tracking retry count, error count, test coverage signals, and command volume.
-- Building a lightweight evidence trail for AI Builder applications.
-- Creating local reports for screenshots, screen recordings, and GitHub demos.
-
-## Roadmap
-
-- Richer token and cost estimation.
-- Native importers for common coding agent transcript formats.
-- Timeline grouping by phase.
-- More detailed diff risk analysis.
-- Optional local model reviewer.
-- Browser-based dashboard for multiple runs.
-
-## Application-Ready Project Description
-
-I built AgentOps Lite, a lightweight workflow evaluation tool for AI Builders. It analyzes execution records from AI coding agents such as Codex, Claude Code, Cursor, and OpenCode. The project solves a real pain point: agent work is scattered across conversations, terminal logs, code diffs, and test output, making it hard to review failures or compare model performance.
-
-The workflow is: import agent logs, task descriptions, and code diffs; parse planning, file reads, code edits, command execution, errors, retries, tests, and final summaries; extract metrics such as touched files, command count, error count, retry count, test count, diff lines, complexity, and cost level; score the run across completion, code quality, reliability, and cost efficiency; generate Markdown, HTML, and JSON reports; and compare multiple runs.
-
-AgentOps Lite demonstrates multi-stage agent workflow thinking: task trace reconstruction, metric extraction, rule-based evaluation, cost analysis, and improvement advice generation. It runs locally, includes realistic sample logs and diffs, and can be used to review AI agent development tasks, compare model behavior, and improve future AI coding workflows.
-
-## Development
-
-Run tests:
+## 测试
 
 ```bash
 pytest
 ```
 
-Smoke checks:
+建议同时跑一遍 sample，确认报告能生成：
 
 ```bash
-pip install -r requirements.txt
 python main.py sample
-python main.py analyze --agent Codex --model gpt-5-codex --task examples/tasks/bugfix_login.yaml --log examples/logs/codex_bugfix_login.txt --diff examples/diffs/codex_bugfix_login.diff --out outputs/codex_bugfix_report
-pytest
 ```
+
+## 目录
+
+```
+agentops_lite/   解析、评测、报告
+examples/        示例任务、日志、Diff
+prompts/         可选评审器提示
+templates/       报告模板
+tests/           pytest
+outputs/         生成结果（可忽略）
+```
+
+请不要把 `__pycache__/` 提交进仓库。
