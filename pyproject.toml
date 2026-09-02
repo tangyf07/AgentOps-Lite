@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentops-lite"
+version = "0.1.0"
+description = "Local CLI that turns Cursor, Claude Code, and Codex logs into readable workflow reports."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Yuanfei Tang" }]
+keywords = ["agent", "eval", "cursor", "claude", "codex"]
+dependencies = [
+  "pydantic>=2.7",
+  "jinja2>=3.1",
+  "rich>=13.7",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+agentops-lite = "agentops_lite.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/tangyf07/AgentOps-Lite"
+Repository = "https://github.com/tangyf07/AgentOps-Lite"
+
+[tool.setuptools.packages.find]
+include = ["agentops_lite*"]
+
+[tool.setuptools.package-data]
+agentops_lite = ["templates/*.j2", "data/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
