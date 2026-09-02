@@ -8,10 +8,16 @@ from typing import Iterable
 from .models import AgentEvaluation, AgentEvent, AgentRun
 from .utils import ensure_parent, read_text, render_html_template, render_template, write_text
 
+def _default_template_dir() -> Path:
+    here = Path(__file__).resolve().parent
+    bundled = here / "templates"
+    if (bundled / "report.md.j2").is_file():
+        return bundled
+    return here.parent / "templates"
 
 class ReportGenerator:
     def __init__(self, template_dir: Path | None = None):
-        self.template_dir = template_dir or Path(__file__).resolve().parent.parent / "templates"
+        self.template_dir = template_dir or _default_template_dir()
 
     def generate_markdown(self, run: AgentRun, output_base: Path | str) -> Path:
         output_base = self._normalize_output_base(output_base)
