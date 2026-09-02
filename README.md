@@ -1,125 +1,93 @@
 # AgentOps Lite
 
-面向 AI Builder 的轻量级本地 CLI：把 Codex、Claude Code、Cursor、OpenCode 打散在任务描述、运行日志、终端输出和代码 Diff 里的执行记录，解析成事件时间线，打分，并生成 Markdown / HTML / JSON 报告。
+Local CLI for reviewing AI coding-agent runs. It reads Cursor / Claude Code / Codex logs, scores the workflow, and writes Markdown, HTML, and JSON reports. Nothing leaves your machine unless you opt into the optional LLM reviewer.
 
-Agent 做完活之后，证据通常散落在对话、终端、补丁和测试输出里，很难复盘失败或对比模型。AgentOps Lite 把这些痕迹收成一份可检查的本地报告。全程本地运行，可选接入 OpenAI 兼容接口做二次评审。
+## 30-second start
 
-## 能做什么
+```bash
+pip install "git+https://github.com/tangyf07/AgentOps-Lite.git"
+agentops-lite
+```
 
-- 导入任务 YAML、Agent 日志和代码 Diff
-- 识别计划、文件读写、命令、错误、重试、测试、人工介入、最终总结等事件
-- 按完成度、代码质量、可靠性、成本效率打分
-- 生成本地 Markdown / HTML / JSON 报告
-- 把多次运行对比成一张 HTML 表
-- 设置 `OPENAI_API_KEY` 后可选用 OpenAI 兼容评审器
+That installs the `agentops-lite` command, looks for local agent logs in common Windows / macOS / Linux paths, and writes `outputs/latest_report.html`.
+
+From a clone:
+
+```bash
+pip install -e .
+agentops-lite sample
+```
+
+Open `outputs/sample_report.html`. No task YAML is required for auto-ingest.
+
+## What it does
+
+- Auto-ingests Cursor Agent JSONL, Claude Code `~/.claude/projects` JSONL, and Codex `~/.codex/sessions` rollouts
+- Parses planning, file reads/writes, commands, errors, retries, tests, and final summaries
+- Scores completion, code quality, reliability, and cost efficiency
+- Writes local Markdown / HTML / JSON
+- Compares multiple runs
+- Optional OpenAI-compatible reviewer only if `OPENAI_API_KEY` is set
 
 ```mermaid
 flowchart TD
-    A[Agent logs / terminal / diff] --> B[Log Parser]
-    B --> C[Event Timeline]
-    B --> D[Metrics Extractor]
-    C --> E[Rule-based Evaluator]
-    D --> E
-    E --> F[Markdown]
-    E --> G[HTML]
-    E --> H[JSON]
-    H --> I[Multi-run Comparison]
+    A[Local Cursor / Claude / Codex logs] --> B[Auto-ingest]
+    B --> C[Log Parser]
+    C --> D[Evaluator]
+    D --> E[Markdown / HTML / JSON]
 ```
 
-## 安装
+## Commands
 
 ```bash
-git clone https://github.com/tangyf07/AgentOps-Lite.git
-cd AgentOps-Lite
-pip install -r requirements.txt
+agentops-lite
+agentops-lite ingest --list
+agentops-lite ingest --source cursor --out outputs/cursor_report
+agentops-lite sample
+agentops-lite analyze --agent Codex --model gpt-5-codex --task examples/tasks/bugfix_login.yaml --log examples/logs/codex_bugfix_login.txt --diff examples/diffs/codex_bugfix_login.diff --out outputs/codex_bugfix_report
+agentops-lite compare outputs/*.json --out outputs/comparison.html
 ```
 
-依赖：`pydantic` `jinja2` `rich` `pyyaml` `pytest`（见 `requirements.txt`）。
+`analyze` still accepts YAML. If you omit `--task` / `--log`, it falls back to auto-ingest.
 
-## 快速开始
+## Where it looks
 
-```bash
-python main.py sample
-```
+| Source | Typical paths |
+| --- | --- |
+| Cursor | `~/.cursor/projects/*/agent-transcripts/**/*.jsonl` (Windows: `%USERPROFILE%\.cursor\...`) |
+| Claude Code | `~/.claude/projects/*/*.jsonl`, plus `CLAUDE_CONFIG_DIR` |
+| Codex | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`, plus `CODEX_HOME` |
 
-会生成：
+Pass extra files with `agentops-lite ingest --dir PATH`.
 
-- `outputs/sample_report.md`
-- `outputs/sample_report.html`
-- `outputs/sample_report.json`
+## Formats that are documented, not silently skipped
 
-用浏览器打开 HTML 即可看评分卡、指标表和时间线。
+- Cursor IDE chat protobuf in `state.vscdb` / `store.db`: found, reported as unsupported. Agent JSONL is parsed.
+- OpenCode SQLite (`~/.local/share/opencode/opencode.db`): not parsed.
+- Codex `encrypted_content` reasoning blobs: skipped with a parse note.
+- Copilot CLI session-state and Hermes `state.db`: not parsed.
 
-## 分析一次运行
+Unknown JSON objects keep a note with their keys instead of disappearing.
 
-```bash
-python main.py analyze \
-  --agent Codex \
-  --model gpt-5-codex \
-  --task examples/tasks/bugfix_login.yaml \
-  --log examples/logs/codex_bugfix_login.txt \
-  --diff examples/diffs/codex_bugfix_login.diff \
-  --out outputs/codex_bugfix_report
-```
+## Sample report
 
-开启可选评审器：
+A realistic, secret-free sample is checked in at [`examples/reports/sample_report.md`](examples/reports/sample_report.md).
 
-```bash
-OPENAI_API_KEY=your_key python main.py analyze \
-  --agent Codex \
-  --model gpt-5-codex \
-  --task examples/tasks/bugfix_login.yaml \
-  --log examples/logs/codex_bugfix_login.txt \
-  --diff examples/diffs/codex_bugfix_login.diff \
-  --out outputs/codex_bugfix_report \
-  --use-llm-reviewer
-```
-
-## 对比多次运行
-
-```bash
-python main.py compare outputs/*.json --out outputs/comparison.html
-```
-
-## 任务 YAML 示例
+## Task YAML (optional)
 
 ```yaml
 task_name: Fix login validation bug
 task_type: bug_fix
 task_description: |
-  The login form accepts empty passwords in some cases. The agent should locate the validation logic,
-  fix the bug, and add or run tests.
-expected_behavior:
-  - Empty password should be rejected
-  - Existing login behavior should not break
-  - Tests should pass
-success_criteria:
-  - Validation logic is updated
-  - A test command is run
-  - No obvious regression is introduced
+  The login form accepts empty passwords in some cases.
 ```
 
-## 测试
+## Development
 
 ```bash
+pip install -e ".[dev]"
 pytest
+agentops-lite sample
 ```
 
-建议同时跑一遍 sample，确认报告能生成：
-
-```bash
-python main.py sample
-```
-
-## 目录
-
-```
-agentops_lite/   解析、评测、报告
-examples/        示例任务、日志、Diff
-prompts/         可选评审器提示
-templates/       报告模板
-tests/           pytest
-outputs/         生成结果（可忽略）
-```
-
-请不要把 `__pycache__/` 提交进仓库。
+Fully local. The optional reviewer is skipped unless `OPENAI_API_KEY` is set.

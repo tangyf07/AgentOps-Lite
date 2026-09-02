@@ -1,0 +1,31 @@
+diff --git a/app/auth.py b/app/auth.py
+index e12ab80..f24bb71 100644
+--- a/app/auth.py
++++ b/app/auth.py
+@@ -12,8 +12,10 @@ class LoginValidator:
+     def validate(self, email: str, password: str | None) -> None:
+         if not email or "@" not in email:
+             raise ValidationError("INVALID_EMAIL")
+-        if password is None:
++        if password is None or not password.strip():
+             raise ValidationError("INVALID_PASSWORD")
+         if len(password) < 8:
+             raise ValidationError("PASSWORD_TOO_SHORT")
+ 
+diff --git a/tests/test_auth.py b/tests/test_auth.py
+index 842aa0a..fa70f93 100644
+--- a/tests/test_auth.py
++++ b/tests/test_auth.py
+@@ -21,6 +21,14 @@ def test_login_rejects_missing_password():
+     with pytest.raises(ValidationError):
+         validator.validate("user@example.com", None)
+ 
++def test_login_rejects_empty_password():
++    validator = LoginValidator()
++    with pytest.raises(ValidationError, match="INVALID_PASSWORD"):
++        validator.validate("user@example.com", "")
++
++def test_login_rejects_blank_password():
++    validator = LoginValidator()
++    with pytest.raises(ValidationError, match="INVALID_PASSWORD"):
++        validator.validate("user@example.com", "   ")

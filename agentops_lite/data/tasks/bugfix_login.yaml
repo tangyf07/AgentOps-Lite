@@ -1,0 +1,13 @@
+task_name: Fix login validation bug
+task_type: bug_fix
+task_description: |
+  The login form accepts empty passwords in some cases. The agent should locate the validation logic,
+  fix the bug, and add or run tests.
+expected_behavior:
+  - Empty password should be rejected
+  - Existing login behavior should not break
+  - Tests should pass
+success_criteria:
+  - Validation logic is updated
+  - A test command is run
+  - No obvious regression is introduced
